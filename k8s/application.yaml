@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: calculator-api
+  namespace: argocd  # ArgoCD's namespace
+spec:
+  project: default
+  
+  # Where to get the manifests
+  source:
+    repoURL: https://github.com/anees-rehman1/calculator-api  # YOUR repo
+    targetRevision: main
+    path: k8s  # Folder containing k8s manifests
+    
+  # Where to deploy
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+    
+  # Auto-sync when manifests change
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    
+  # Health checks
+  healthChecks:
+    - apiVersion: v1
+      kind: Service
+      name: calculator-api-service
+      namespace: default
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: calculator-api
+      namespace: default
